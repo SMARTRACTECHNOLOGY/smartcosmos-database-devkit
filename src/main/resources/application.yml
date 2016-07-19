@@ -4,8 +4,6 @@ server:
 flyway:
   enabled: false
 
-debug: true
-
 spring:
   datasource:
     #

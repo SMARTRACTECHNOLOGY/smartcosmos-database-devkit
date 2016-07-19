@@ -1,0 +1,24 @@
+server:
+  port: 0
+
+flyway:
+  enabled: false
+
+debug: true
+
+spring:
+  datasource:
+    #
+    # CREATE DATABASE migrate;  GRANT ALL PRIVILEGES ON migrate.* TO 'cosmos'@'localhost' IDENTIFIED BY 'dev';  FLUSH PRIVILEGES;
+    #
+    name: migrate
+    hostname: localhost
+    url: jdbc:mysql://${spring.datasource.hostname}/${spring.datasource.name}?autoReconnect=true
+    username: cosmos
+    password: dev
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+      naming_strategy: org.hibernate.cfg.EJB3NamingStrategy

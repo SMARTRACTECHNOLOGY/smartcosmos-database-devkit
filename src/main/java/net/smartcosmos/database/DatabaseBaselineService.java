@@ -46,7 +46,13 @@ public class DatabaseBaselineService implements ApplicationContextAware, Applica
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        Path backup = Paths.get("src/main/resources/db/migration/backup.sql");
+
+        long version = 0L;
+        Path backup;
+        do  {
+            version++;
+            backup = Paths.get(String.format("src/main/resources/db/migration/V%d__migration.sql",version));
+        } while (backup.toFile().exists());
 
         ProcessBuilder processBuilder = new ProcessBuilder("mysqldump",
                                                            "-u", databaseUser,

@@ -38,6 +38,7 @@ public class DatabaseMigrationService implements ApplicationContextAware, Applic
     @Value("${flyway.enabled}")
     boolean migrate;
 
+    private final String outputFilename = "V2__sample-adding-field.sql";
     @Autowired
     private DataSourceProperties dataSourceProperties;
 
@@ -95,12 +96,7 @@ public class DatabaseMigrationService implements ApplicationContextAware, Applic
             update.setHaltOnError(true);
         }
 
-        long version = 0L;
-        Path backup;
-        do {
-            version++;
-            backup = Paths.get(String.format("src/main/resources/db/migration/V%d__migration.sql", version));
-        } while (backup.toFile().exists());
+        Path backup = Paths.get(String.format("src/main/resources/db/migration/" + outputFilename));
 
         final String filename = backup.toAbsolutePath().normalize().toString();
         if (!migrate) {

@@ -1,0 +1,72 @@
+= Database Migration Sample
+SMARTRAC Technology Fletcher Inc <api@smartrac-group.com>
+:version: 3.0.0-SNAPSHOT
+
+The goal with this repository is to provide a working example of how to manage database migrations when numerous microservices refer to the same database.  You need to have a mutually agreed upon database structure, which creates a co-dependency across the code whether acknowledged or not.  Since that is the case, it's usually better to just acknowledge it and move on.  The case study for this is the DevKit, which has a single MySQL database shared by the following services:
+
+* Things
+** `net.smartcosmos.dao.things.domain.ThingEntity`
+* Metadata
+** `net.smartcosmos.dao.metadata.domain.MetadataEntity`
+** `net.smartcosmos.dao.metadata.domain.MetadataOwnerEntity`
+* Relationships
+** `net.smartcosmos.dao.relationships.domain.RelationshipEntity`
+* Users
+** `net.smartcosmos.extension.tenant.domain.RoleEntity`
+** `net.smartcosmos.extension.tenant.domain.TenantEntity`
+** `net.smartcosmos.extension.tenant.domain.AuthorityEntity`
+** `net.smartcosmos.extension.tenant.domain.UserEntity`
+
+First a little about database migrations, and why https://flywaydb.org/[Flyway] was chosen as the tool to use.  Database migrations are *hard*, they're also *important*, and it's why historically the role of "DBA" is a fairly high paying position that commands a lot of respect.  These guys optimize the databases, and they typically speak straight SQL to do so.  Another popular product exists, http://www.liquibase.org/[Liquibase], that was evaluated as an alternative due to the fact it can automate more of this process.  However, Liquibase is an XML first approach, that gets in the way of running *pure SQL*, which is ultimately considered one of the best ways to handle database migrations.  It helps to understand why considerations were made in this way, because ultimately database migrations involve some semi-manual processes.
+
+== Step 1, Initial Creation aka Baseline
+
+Initial Creation is fairly straightforward, and there's a couple ways to go about it.  You can either dump an existing database using a tool like `mysqldump`, or if you don't even have a database yet, you can use Hibernate's `hbm2ddl`, which is what I used here.  Inside `DatabaseMigrationService` if you set `flyway.enabled=false` you will run the initial "creation" option.
+
+IMPORTANT: Make sure you change `outputFilename` inside the service, refer to https://flywaydb.org/documentation/command/migrate[Flyway Migrate] for naming conventions.
+
+This creates what is a rather shoddy file that will require some manual manipulation.  It includes weird things like modifying tables before they exist, which will throw errors.  This is why `hbm2ddl` is considered extremely harmful in production environments.  *Some SQL knowledge is required for this part.*  After you fix this file, I *highly* recommend importing it into an actual MariaDB database and then running `mysqldump` on it.
+
+```
+mysql -u root -pchangeme migrate < V1__migration.sql
+mysqldump -u root -pchangeme --databases migrate > V1__creation.sql
+```
+
+Neither script is perfect, and you'll need to modify the resulting SQL file as well, removing references to creating the database *or worse dropping the database tables*.
+
+== Step 2, Migration aka Migration
+
+Now you can run `DatabaseMigrationService` with `flyway.enabled=true`.  If none of the Hibernate entities changed, you'll end up with a blank file.  Great, that means there's nothing to migrate.  Let's say we've changed the versions of `smartcosmos-dao-metadata-default` to a newer version, and we changed some fields.  Now when you run this, you might get something like this:
+
+```
+    alter table metadata
+        add column fakeFieldPleaseIgnore varchar(255);
+```
+
+That means there was a change in the structure of the database, and you need a migration file.  Once again, refer to Flyway's documentation, but ultimately you'll end up with a file other than `V1__creation.sql`, let's call it `V2__sample-adding-field.sql`.  Commit that to the repository, and Flyway handles the rest.
+
+== Step 3, Adding the Migration scripts to the services
+
+At this point we have generated a new JAR file that contains just a new dependency on:
+
+```
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-core</artifactId>
+</dependency>
+```
+
+As well as the resources in `src/main/resources` which are the database migration scripts for Flyway.  If you add these as a dependency on each running service:
+
+```
+<dependency>
+    <groupId>net.smartcosmos</groupId>
+    <artifactId>smartcosmos-database-devkit</artifactId>
+    <version>3.0.0-SNAPSHOT</version>
+    <scope>runtime</scope>
+</dependency>
+```
+
+Then the service will either conduct the migration when it starts up, or it'll fail to run because it is not talking to the correctly structured database.
+
+Proper use of Flyway is outside of the scope of this document, this is just meant to be a presentation on how we could architect proper database migrations.

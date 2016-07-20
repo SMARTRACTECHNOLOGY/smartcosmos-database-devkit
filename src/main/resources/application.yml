@@ -2,14 +2,14 @@ server:
   port: 0
 
 flyway:
-  enabled: false
+  enabled: true
 
 spring:
   datasource:
     #
-    # CREATE DATABASE migrate;  GRANT ALL PRIVILEGES ON migrate.* TO 'cosmos'@'localhost' IDENTIFIED BY 'dev';  FLUSH PRIVILEGES;
+    # CREATE DATABASE objects;  GRANT ALL PRIVILEGES ON objects.* TO 'cosmos'@'localhost' IDENTIFIED BY 'dev';  FLUSH PRIVILEGES;
     #
-    name: migrate
+    name: objects
     hostname: localhost
     url: jdbc:mysql://${spring.datasource.hostname}/${spring.datasource.name}?autoReconnect=true
     username: cosmos

@@ -1,18 +1,19 @@
 package net.smartcosmos.database;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.annotation.PostConstruct;
 import javax.persistence.Entity;
-import javax.persistence.EntityManagerFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.cfg.Configuration;
-import org.hibernate.dialect.MySQLDialect;
-import org.hibernate.jpa.HibernateEntityManagerFactory;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.hibernate.tool.hbm2ddl.Target;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -34,14 +35,13 @@ import org.springframework.stereotype.Component;
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class DatabaseMigrationService implements ApplicationContextAware, ApplicationRunner {
 
-    @Autowired
-    DataSourceProperties dataSourceProperties;
+    @Value("${flyway.enabled}")
+    boolean migrate;
 
     @Autowired
-    EntityManagerFactory entityManagerFactory;
+    private DataSourceProperties dataSourceProperties;
 
-    @Autowired
-    Configuration configuration;
+    private Configuration configuration;
 
     private ConfigurableApplicationContext context;
 
@@ -52,47 +52,66 @@ public class DatabaseMigrationService implements ApplicationContextAware, Applic
         }
     }
 
-    public org.hibernate.cfg.Configuration getConfiguration() {
+    @PostConstruct
+    public void init() {
 
-        if ( entityManagerFactory instanceof HibernateEntityManagerFactory) {
-            ((HibernateEntityManagerFactory)entityManagerFactory).getSessionFactory();
-        }
-        org.hibernate.cfg.Configuration cfg = new org.hibernate.cfg.Configuration();
+        configuration = new org.hibernate.cfg.Configuration();
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AnnotationTypeFilter(Entity.class));
         for (BeanDefinition bd : scanner.findCandidateComponents("net.smartcosmos")) {
             String name = bd.getBeanClassName();
             try {
                 System.out.println("Added annotated entity class " + bd.getBeanClassName());
-                cfg.addAnnotatedClass(Class.forName(name));
+                configuration.addAnnotatedClass(Class.forName(name));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        cfg.setProperty("hibernate.dialect", MySQLDialect.getDialect().toString());
-        cfg.setProperty("hibernate.show_sql", "true");
-        cfg.setProperty("hibernate.format_sql", "true");
-        cfg.setProperty("hibernate.hbm2ddl.auto", "update");
-        cfg.setProperty("hibernate.ejb.naming_strategy", "oorg.hibernate.cfg.EJB3NamingStrategy");
+        configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+        configuration.setProperty("hibernate.show_sql", "true");
+        configuration.setProperty("hibernate.format_sql", "true");
+        configuration.setProperty("hibernate.hbm2ddl.auto", "update");
+        configuration.setProperty("hibernate.ejb.naming_strategy", "org.hibernate.cfg.EJB3NamingStrategy");
 
-        cfg.setProperty("hibernate.connection.url", dataSourceProperties.getUrl());
-        cfg.setProperty("hibernate.connection.username", dataSourceProperties.getUsername());
-        cfg.setProperty("hibernate.connection.password", dataSourceProperties.getPassword());
-        cfg.setProperty("hibernate.connection.driver", dataSourceProperties.getDriverClassName());
-        return cfg;
+        configuration.setProperty("hibernate.connection.url", dataSourceProperties.getUrl());
+        configuration.setProperty("hibernate.connection.username", dataSourceProperties.getUsername());
+        configuration.setProperty("hibernate.connection.password", dataSourceProperties.getPassword());
+        configuration.setProperty("hibernate.connection.driver", dataSourceProperties.getDriverClassName());
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        SchemaExport export = new SchemaExport(getConfiguration());
-        export.setDelimiter(";");
-        export.setHaltOnError(true);
-        export.setFormat(true);
 
-        export.setOutputFile(Paths.get("./file.txt").toAbsolutePath().normalize().toString());
+        final SchemaExport export = new SchemaExport(configuration);
+        final SchemaUpdate update = new SchemaUpdate(configuration);
+        if (!migrate) {
+            export.setDelimiter(";");
+            export.setHaltOnError(true);
+            export.setFormat(true);
+        } else {
+            update.setDelimiter(";");
+            update.setFormat(true);
+            update.setHaltOnError(true);
+        }
 
-        export.create(Target.NONE);
+        long version = 0L;
+        Path backup;
+        do {
+            version++;
+            backup = Paths.get(String.format("src/main/resources/db/migration/V%d__migration.sql", version));
+        } while (backup.toFile().exists());
+
+        final String filename = backup.toAbsolutePath().normalize().toString();
+        if (!migrate) {
+            export.setOutputFile(filename);
+
+            export.create(Target.NONE);
+        } else {
+            update.setOutputFile(filename);
+
+            update.execute(Target.NONE);
+        }
 
         new Thread(() -> {
             try {

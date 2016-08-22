@@ -19,7 +19,6 @@
 -- Table structure for table `authority`
 --
 
-DROP TABLE IF EXISTS `authority`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `authority` (
@@ -41,7 +40,6 @@ UNLOCK TABLES;
 -- Table structure for table `metadata`
 --
 
-DROP TABLE IF EXISTS `metadata`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `metadata` (
@@ -70,7 +68,6 @@ UNLOCK TABLES;
 -- Table structure for table `metadataOwner`
 --
 
-DROP TABLE IF EXISTS `metadataOwner`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `metadataOwner` (
@@ -96,7 +93,6 @@ UNLOCK TABLES;
 -- Table structure for table `relationship`
 --
 
-DROP TABLE IF EXISTS `relationship`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `relationship` (
@@ -126,7 +122,6 @@ UNLOCK TABLES;
 -- Table structure for table `role`
 --
 
-DROP TABLE IF EXISTS `role`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `role` (
@@ -155,7 +150,6 @@ UNLOCK TABLES;
 -- Table structure for table `role_authorities`
 --
 
-DROP TABLE IF EXISTS `role_authorities`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `role_authorities` (
@@ -181,7 +175,6 @@ UNLOCK TABLES;
 -- Table structure for table `role_user`
 --
 
-DROP TABLE IF EXISTS `role_user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `role_user` (
@@ -207,7 +200,6 @@ UNLOCK TABLES;
 -- Table structure for table `tenant`
 --
 
-DROP TABLE IF EXISTS `tenant`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tenant` (
@@ -234,7 +226,6 @@ UNLOCK TABLES;
 -- Table structure for table `thing`
 --
 
-DROP TABLE IF EXISTS `thing`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `thing` (
@@ -262,7 +253,6 @@ UNLOCK TABLES;
 -- Table structure for table `user`
 --
 
-DROP TABLE IF EXISTS `user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user` (
@@ -294,7 +284,6 @@ UNLOCK TABLES;
 -- Table structure for table `user_roles`
 --
 
-DROP TABLE IF EXISTS `user_roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user_roles` (

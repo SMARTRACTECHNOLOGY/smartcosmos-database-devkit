@@ -23,6 +23,7 @@ public class DatabaseMigrationApplication {
     public static void main(String[] args) {
 
         new SpringApplicationBuilder(DatabaseMigrationApplication.class)
+            .profiles("datasync")
             .bannerMode(Banner.Mode.OFF)
             .run(args);
     }

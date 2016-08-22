@@ -38,7 +38,9 @@ public class DatabaseMigrationService implements ApplicationContextAware, Applic
     @Value("${flyway.enabled}")
     boolean migrate;
 
-    private final String outputFilename = "V2__updated-structure.sql";
+    @Value("${outputFileName}")
+    private String outputFilename = "V2__updated-structure.sql";
+
     @Autowired
     private DataSourceProperties dataSourceProperties;
 
@@ -48,6 +50,7 @@ public class DatabaseMigrationService implements ApplicationContextAware, Applic
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+
         if (applicationContext instanceof ConfigurableApplicationContext) {
             this.context = (ConfigurableApplicationContext) applicationContext;
         }
@@ -100,13 +103,22 @@ public class DatabaseMigrationService implements ApplicationContextAware, Applic
         Path folder = Paths.get(migrationFolder);
 
         // Running this out of the cluster sometimes messes up the working directory.
-        if (!folder.toFile().exists()) {
+        if (!folder.toFile()
+            .exists()) {
             migrationFolder = "smartcosmos-database-devkit/" + migrationFolder;
         }
 
         Path backup = Paths.get(migrationFolder + outputFilename);
 
-        final String filename = backup.toAbsolutePath().normalize().toString();
+        final String filename = backup.toAbsolutePath()
+            .normalize()
+            .toString();
+
+        if (backup.toFile()
+            .exists()) {
+            log.error("File already exists, this would overwrite the file at {}.  Please change outputFilename and run again!", filename);
+        }
+
         if (!migrate) {
             export.setOutputFile(filename);
 

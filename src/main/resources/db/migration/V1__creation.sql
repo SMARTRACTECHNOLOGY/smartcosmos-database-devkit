@@ -24,17 +24,41 @@
 CREATE TABLE `authority` (
   `authority` varchar(255) NOT NULL,
   PRIMARY KEY (`authority`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `authority`
+-- Table structure for table `tenant`
 --
 
-LOCK TABLES `authority` WRITE;
-/*!40000 ALTER TABLE `authority` DISABLE KEYS */;
-/*!40000 ALTER TABLE `authority` ENABLE KEYS */;
-UNLOCK TABLES;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tenant` (
+  `id` binary(16) NOT NULL,
+  `active` bit(1) NOT NULL,
+  `created` datetime DEFAULT NULL,
+  `lastModified` datetime NOT NULL,
+  `name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_dcxf3ksi0gyn1tieeq0id96lm` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `metadataOwner`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `metadataOwner` (
+  `internalId` binary(16) NOT NULL,
+  `id` binary(16) NOT NULL,
+  `tenantId` binary(16) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  PRIMARY KEY (`internalId`),
+  UNIQUE KEY `UK_n30427w7go3uuy7gqup3hplbk` (`type`,`id`,`tenantId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `metadata`
@@ -52,42 +76,8 @@ CREATE TABLE `metadata` (
   PRIMARY KEY (`keyName`,`owner_internalId`),
   KEY `FK_r0ry5rei784snrsbqoh9lb1v1` (`owner_internalId`),
   CONSTRAINT `FK_r0ry5rei784snrsbqoh9lb1v1` FOREIGN KEY (`owner_internalId`) REFERENCES `metadataOwner` (`internalId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `metadata`
---
-
-LOCK TABLES `metadata` WRITE;
-/*!40000 ALTER TABLE `metadata` DISABLE KEYS */;
-/*!40000 ALTER TABLE `metadata` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `metadataOwner`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `metadataOwner` (
-  `internalId` binary(16) NOT NULL,
-  `id` binary(16) NOT NULL,
-  `tenantId` binary(16) NOT NULL,
-  `type` varchar(255) NOT NULL,
-  PRIMARY KEY (`internalId`),
-  UNIQUE KEY `UK_n30427w7go3uuy7gqup3hplbk` (`type`,`id`,`tenantId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `metadataOwner`
---
-
-LOCK TABLES `metadataOwner` WRITE;
-/*!40000 ALTER TABLE `metadataOwner` DISABLE KEYS */;
-/*!40000 ALTER TABLE `metadataOwner` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `relationship`
@@ -106,17 +96,8 @@ CREATE TABLE `relationship` (
   `targetType` varchar(255) NOT NULL,
   `tenantId` binary(16) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `relationship`
---
-
-LOCK TABLES `relationship` WRITE;
-/*!40000 ALTER TABLE `relationship` DISABLE KEYS */;
-/*!40000 ALTER TABLE `relationship` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `role`
@@ -134,93 +115,8 @@ CREATE TABLE `role` (
   `tenantId` binary(16) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_k84ra9fx3bt8vhs35jb634m6e` (`name`,`tenantId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `role`
---
-
-LOCK TABLES `role` WRITE;
-/*!40000 ALTER TABLE `role` DISABLE KEYS */;
-/*!40000 ALTER TABLE `role` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `role_authorities`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `role_authorities` (
-  `role` binary(16) NOT NULL,
-  `authority` varchar(255) NOT NULL,
-  PRIMARY KEY (`role`,`authority`),
-  KEY `FK_mvxsigs0pjmtokrtegpq3srgt` (`authority`),
-  CONSTRAINT `FK_mvxsigs0pjmtokrtegpq3srgt` FOREIGN KEY (`authority`) REFERENCES `authority` (`authority`),
-  CONSTRAINT `FK_ri5esjrabynhwunpqy4tx3auj` FOREIGN KEY (`role`) REFERENCES `role` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `role_authorities`
---
-
-LOCK TABLES `role_authorities` WRITE;
-/*!40000 ALTER TABLE `role_authorities` DISABLE KEYS */;
-/*!40000 ALTER TABLE `role_authorities` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `role_user`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `role_user` (
-  `role_id` binary(16) NOT NULL,
-  `users_id` binary(16) NOT NULL,
-  PRIMARY KEY (`role_id`,`users_id`),
-  KEY `FK_kfajhki6vd9okapq5eov6tk9c` (`users_id`),
-  CONSTRAINT `FK_1p4td69hdcg4iaau4pvj20m3h` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`),
-  CONSTRAINT `FK_kfajhki6vd9okapq5eov6tk9c` FOREIGN KEY (`users_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `role_user`
---
-
-LOCK TABLES `role_user` WRITE;
-/*!40000 ALTER TABLE `role_user` DISABLE KEYS */;
-/*!40000 ALTER TABLE `role_user` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `tenant`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tenant` (
-  `id` binary(16) NOT NULL,
-  `active` bit(1) NOT NULL,
-  `created` datetime DEFAULT NULL,
-  `lastModified` datetime NOT NULL,
-  `name` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_dcxf3ksi0gyn1tieeq0id96lm` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `tenant`
---
-
-LOCK TABLES `tenant` WRITE;
-/*!40000 ALTER TABLE `tenant` DISABLE KEYS */;
-/*!40000 ALTER TABLE `tenant` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `thing`
@@ -237,17 +133,8 @@ CREATE TABLE `thing` (
   `type` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_51ftm4jj6o6r8i4rxlv35mjdo` (`id`,`tenantId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `thing`
---
-
-LOCK TABLES `thing` WRITE;
-/*!40000 ALTER TABLE `thing` DISABLE KEYS */;
-/*!40000 ALTER TABLE `thing` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `user`
@@ -268,17 +155,8 @@ CREATE TABLE `user` (
   `username` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_sb8bbouer5wak8vyiiy4pf2bx` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `user`
---
-
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `user_roles`
@@ -293,18 +171,40 @@ CREATE TABLE `user_roles` (
   KEY `FK_c519w0l613l023tayy895chpd` (`role`),
   CONSTRAINT `FK_c519w0l613l023tayy895chpd` FOREIGN KEY (`role`) REFERENCES `role` (`id`),
   CONSTRAINT `FK_oanch5nixy8aa46y2jexkvo5w` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `user_roles`
+-- Table structure for table `role_user`
 --
 
-LOCK TABLES `user_roles` WRITE;
-/*!40000 ALTER TABLE `user_roles` DISABLE KEYS */;
-/*!40000 ALTER TABLE `user_roles` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `role_user` (
+  `role_id` binary(16) NOT NULL,
+  `users_id` binary(16) NOT NULL,
+  PRIMARY KEY (`role_id`,`users_id`),
+  KEY `FK_kfajhki6vd9okapq5eov6tk9c` (`users_id`),
+  CONSTRAINT `FK_1p4td69hdcg4iaau4pvj20m3h` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`),
+  CONSTRAINT `FK_kfajhki6vd9okapq5eov6tk9c` FOREIGN KEY (`users_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `role_authorities`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `role_authorities` (
+  `role` binary(16) NOT NULL,
+  `authority` varchar(255) NOT NULL,
+  PRIMARY KEY (`role`,`authority`),
+  KEY `FK_mvxsigs0pjmtokrtegpq3srgt` (`authority`),
+  CONSTRAINT `FK_mvxsigs0pjmtokrtegpq3srgt` FOREIGN KEY (`authority`) REFERENCES `authority` (`authority`),
+  CONSTRAINT `FK_ri5esjrabynhwunpqy4tx3auj` FOREIGN KEY (`role`) REFERENCES `role` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

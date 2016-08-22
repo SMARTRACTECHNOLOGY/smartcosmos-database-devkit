@@ -22,6 +22,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
+@Profile("datasync")
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class DatabaseMigrationService implements ApplicationContextAware, ApplicationRunner {
 

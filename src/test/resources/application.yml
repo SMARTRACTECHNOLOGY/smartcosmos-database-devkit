@@ -7,7 +7,7 @@ flyway:
 spring:
   datasource:
     #
-    # CREATE DATABASE objects;  GRANT ALL PRIVILEGES ON objects.* TO 'cosmos'@'localhost' IDENTIFIED BY 'dev';  FLUSH PRIVILEGES;
+    # DROP DATABASE IF EXISTS objects; CREATE DATABASE objects;  GRANT ALL PRIVILEGES ON objects.* TO 'cosmos'@'localhost' IDENTIFIED BY 'dev';  FLUSH PRIVILEGES;
     #
     name: objects
     hostname: localhost

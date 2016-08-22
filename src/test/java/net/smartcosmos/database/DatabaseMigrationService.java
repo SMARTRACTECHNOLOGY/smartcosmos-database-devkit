@@ -38,7 +38,7 @@ public class DatabaseMigrationService implements ApplicationContextAware, Applic
     @Value("${flyway.enabled}")
     boolean migrate;
 
-    private final String outputFilename = "V2__sample-adding-field.sql";
+    private final String outputFilename = "V2__updated-structure.sql";
     @Autowired
     private DataSourceProperties dataSourceProperties;
 
@@ -96,7 +96,15 @@ public class DatabaseMigrationService implements ApplicationContextAware, Applic
             update.setHaltOnError(true);
         }
 
-        Path backup = Paths.get(String.format("src/main/resources/db/migration/" + outputFilename));
+        String migrationFolder = "src/main/resources/db/migration/";
+        Path folder = Paths.get(migrationFolder);
+
+        // Running this out of the cluster sometimes messes up the working directory.
+        if (!folder.toFile().exists()) {
+            migrationFolder = "smartcosmos-database-devkit/" + migrationFolder;
+        }
+
+        Path backup = Paths.get(migrationFolder + outputFilename);
 
         final String filename = backup.toAbsolutePath().normalize().toString();
         if (!migrate) {

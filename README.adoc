@@ -1,6 +1,12 @@
 = Database Migration Sample
 SMARTRAC Technology Fletcher Inc <api@smartrac-group.com>
-:version: 3.0.0-SNAPSHOT
+:version: 3.0.1-SNAPSHOT
+ifdef::env-github[:USER: SMARTRACTECHNOLOGY]
+ifdef::env-github[:REPO: smartcosmos-database-devkit]
+ifdef::env-github[:BRANCH: master]
+
+image::https://jenkins.smartcosmos.net/buildStatus/icon?job={USER}/{REPO}/{BRANCH}[Build Status, link=https://jenkins.smartcosmos.net/job/{USER}/job/{REPO}/job/{BRANCH}/]
+image::https://travis-ci.org/{USER}/{REPO}.svg?branch={BRANCH}[Build Status, link=https://travis-ci.org/{USER}/{REPO}]
 
 The goal with this repository is to provide a working example of how to manage database migrations when numerous microservices refer to the same database.  You need to have a mutually agreed upon database structure, which creates a co-dependency across the code whether acknowledged or not.  Since that is the case, it's usually better to just acknowledge it and move on.  The case study for this is the DevKit, which has a single MySQL database shared by the following services:
 
@@ -27,10 +33,11 @@ IMPORTANT: Make sure you change `outputFilename` inside the service, refer to ht
 
 This creates what is a rather shoddy file that will require some manual manipulation.  It includes weird things like modifying tables before they exist, which will throw errors.  This is why `hbm2ddl` is considered extremely harmful in production environments.  *Some SQL knowledge is required for this part.*  After you fix this file, I *highly* recommend importing it into an actual MariaDB database and then running `mysqldump` on it.
 
-```
+[source,sh]
+--
 mysql -u root -pchangeme migrate < V1__migration.sql
 mysqldump -u root -pchangeme --databases migrate > V1__creation.sql
-```
+--
 
 Neither script is perfect, and you'll need to modify the resulting SQL file as well, removing references to creating the database *or worse dropping the database tables*.
 
@@ -49,23 +56,25 @@ That means there was a change in the structure of the database, and you need a m
 
 At this point we have generated a new JAR file that contains just a new dependency on:
 
-```
+[source,xml,subs="attributes,verbatim"]
+--
 <dependency>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-core</artifactId>
 </dependency>
-```
+--
 
 As well as the resources in `src/main/resources` which are the database migration scripts for Flyway.  If you add these as a dependency on each running service:
 
-```
+[source,xml,subs="attributes,verbatim"]
+--
 <dependency>
     <groupId>net.smartcosmos</groupId>
     <artifactId>smartcosmos-database-devkit</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>{version}</version>
     <scope>runtime</scope>
 </dependency>
-```
+--
 
 Then the service will either conduct the migration when it starts up, or it'll fail to run because it is not talking to the correctly structured database.
 

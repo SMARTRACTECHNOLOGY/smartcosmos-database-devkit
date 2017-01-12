@@ -6,7 +6,6 @@ ifdef::env-github[:REPO: smartcosmos-database-devkit]
 ifdef::env-github[:BRANCH: master]
 
 image::https://jenkins.smartcosmos.net/buildStatus/icon?job={USER}/{REPO}/{BRANCH}[Build Status, link=https://jenkins.smartcosmos.net/job/{USER}/job/{REPO}/job/{BRANCH}/]
-image::https://travis-ci.org/{USER}/{REPO}.svg?branch={BRANCH}[Build Status, link=https://travis-ci.org/{USER}/{REPO}]
 
 The goal with this repository is to provide a working example of how to manage database migrations when numerous microservices refer to the same database.  You need to have a mutually agreed upon database structure, which creates a co-dependency across the code whether acknowledged or not.  Since that is the case, it's usually better to just acknowledge it and move on.  The case study for this is the DevKit, which has a single MySQL database shared by the following services:
 

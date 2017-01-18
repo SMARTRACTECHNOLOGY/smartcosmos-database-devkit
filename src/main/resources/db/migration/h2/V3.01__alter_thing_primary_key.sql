@@ -9,5 +9,5 @@ ALTER TABLE thing
 ;
 
 ALTER TABLE thing
-  ADD PRIMARY KEY (tenantId, id)
+  ADD PRIMARY KEY (tenantId, id, type)
 ;
